@@ -6,7 +6,6 @@
 \alias{getImpLegacyRfGini}
 \alias{getLegacyImpRfRaw}
 \alias{getImpLegacyRfRaw}
-\alias{getImpLegacyRfGini}
 \title{randomForest importance adapters}
 \usage{
 getImpLegacyRfZ(x, y, ...)

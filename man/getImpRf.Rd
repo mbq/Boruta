@@ -5,8 +5,6 @@
 \alias{getImpRfZ}
 \alias{getImpRfGini}
 \alias{getImpRfRaw}
-\alias{getImpRfGini}
-\alias{getImpRfRaw}
 \title{ranger Random Forest importance adapters}
 \usage{
 getImpRfZ(x, y, ntree = 500, num.trees = ntree, ...)

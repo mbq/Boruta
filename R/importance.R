@@ -149,3 +149,56 @@ getImpFerns<-function(x,y,...){
  f$importance[,1]
 }
 comment(getImpFerns)<-'rFerns importance'
+
+
+##' Normalised joint mutual information importance with dropout
+##'
+##' This function if intended to be given to a \code{getImp} argument of \code{\link{Boruta}} function to be called by the Boruta algorithm as an importance source.
+##' @param x data frame of predictors including shadows.
+##' @param y response vector.
+##' @param depth maximal interaction depth.
+##' @param dropout factor of mixing lesser-relevant features.
+##' @param ... additional parameters relayed from \code{...} of \code{\link{Boruta}}, ignored.
+##' @export
+getImpNJMId<-function(x,y,depth=5,dropout=.5,...){
+ praznik::miScores(x,y)->score
+ nr<-rep(0,length(score))
+ Z<-factor(rep(1,nrow(x)))
+ depth<-min(ncol(x),depth)
+ for(e in 1:depth){
+  score<-score+praznik::njmiScores(x,y,Z)
+  ascore<-score+nr+ifelse(runif(length(score))>dropout,0,-Inf)
+  #Ignore dropout if nothing can be selected
+  if(max(ascore)==-Inf) ascore<-score
+  Z<-x[,which.max(ascore)]
+  nr[which.max(ascore)]<--Inf
+ }
+ score
+}
+comment(getImpNJMId)<-'NJMI dropout importance'
+
+##' Normalised joint mutual information importance with bootstrap
+##'
+##' This function if intended to be given to a \code{getImp} argument of \code{\link{Boruta}} function to be called by the Boruta algorithm as an importance source.
+##' @param x data frame of predictors including shadows.
+##' @param y response vector.
+##' @param depth maximal interaction depth.
+##' @param ... additional parameters relayed from \code{...} of \code{\link{Boruta}}, ignored.
+##' @export
+getImpNJMIb<-function(x,y,depth=5,...){
+ praznik::miScores(x,y)->score
+ nr<-rep(0,length(score))
+ Z<-factor(rep(1,nrow(x)))
+ depth<-min(ncol(x),depth)
+ for(e in 1:depth){
+  bm<-sample(nrow(x),nrow(x),replace=TRUE)
+  score<-score+praznik::njmiScores(x[bm,],y[bm],Z[bm])
+  ascore<-score+nr
+  #Ignore dropout if nothing can be selected
+  if(max(ascore)==-Inf) ascore<-score
+  Z<-x[,which.max(ascore)]
+  nr[which.max(ascore)]<--Inf
+ }
+ score
+}
+comment(getImpNJMIb)<-'NJMI bootstrap importance'
